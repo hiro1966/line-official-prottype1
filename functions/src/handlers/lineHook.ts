@@ -9,7 +9,7 @@
 
 import * as admin from 'firebase-admin';
 import type { Request, Response } from 'express';
-import { Client, middleware, WebhookEvent, MessageEvent, FollowEvent } from '@line/bot-sdk';
+import { Client, WebhookEvent, MessageEvent, FollowEvent } from '@line/bot-sdk';
 import { decryptPatientData, isQRCodeExpired } from '../utils/encryption';
 import { loadConfig } from '../utils/config';
 
