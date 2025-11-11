@@ -49,7 +49,6 @@ export interface SendMessageRequest {
 export interface AppConfig {
   qrCodeExpiry: number;
   messageTemplate: string;
-  lineOfficialAccountUrl: string;
 }
 
 // LINE Webhook イベント型

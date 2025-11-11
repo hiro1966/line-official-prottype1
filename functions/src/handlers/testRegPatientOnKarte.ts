@@ -7,7 +7,6 @@ import * as admin from 'firebase-admin';
 import type { Request, Response } from 'express';
 import { encryptPatientData } from '../utils/encryption';
 import { generateQRCodeSet } from '../utils/qrcode';
-import { loadConfig } from '../utils/config';
 import type { RegistrationData } from '../types';
 
 /**
@@ -248,8 +247,11 @@ export async function testRegPatientOnKartePost(req: Request, res: Response) {
     });
     
     // QRコード生成
-    const config = loadConfig();
-    const qrCodes = await generateQRCodeSet(config.lineOfficialAccountUrl, encryptString);
+    const lineBotBasicId = process.env.LINE_BOT_BASIC_ID;
+    if (!lineBotBasicId) {
+      throw new Error('LINE_BOT_BASIC_ID is not set in environment variables');
+    }
+    const qrCodes = await generateQRCodeSet(lineBotBasicId, encryptString);
     
     console.log('Test patient registered:', { userId, patientName });
     

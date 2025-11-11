@@ -27,8 +27,7 @@ export function loadConfig(): AppConfig {
     // デフォルト値を返す
     return {
       qrCodeExpiry: 24,
-      messageTemplate: '{patientName}さん、{roomNumber}へお越しください',
-      lineOfficialAccountUrl: 'https://line.me/R/ti/p/@YOUR_LINE_ID'
+      messageTemplate: '{patientName}さん、{roomNumber}へお越しください'
     };
   }
 }

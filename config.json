@@ -1,5 +1,4 @@
 {
   "qrCodeExpiry": 24,
-  "messageTemplate": "{patientName}さん、{roomNumber}へお越しください",
-  "lineOfficialAccountUrl": "https://line.me/R/ti/p/@028kndps"
+  "messageTemplate": "{patientName}さん、{roomNumber}へお越しください"
 }

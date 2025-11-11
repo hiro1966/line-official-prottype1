@@ -36,11 +36,11 @@ export async function generateLineQRCode(lineOfficialAccountUrl: string): Promis
  * メッセージ送信用QRコードを生成
  * LINEのメッセージ送信フォーマットに対応
  */
-export async function generateMessageQRCode(encryptString: string): Promise<string> {
+export async function generateMessageQRCode(lineBotBasicId: string, encryptString: string): Promise<string> {
   // LINEでメッセージを送信するためのURL形式
-  // line://msg/text/<メッセージ内容>
+  // https://line.me/R/oaMessage/<BOT_BASIC_ID>/?<メッセージ内容>
   const message = `登録コード: ${encryptString}`;
-  const lineMessageUrl = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
+  const lineMessageUrl = `https://line.me/R/oaMessage/${lineBotBasicId}/?${encodeURIComponent(message)}`;
   
   return generateQRCode(lineMessageUrl);
 }
@@ -54,12 +54,15 @@ export interface QRCodeSet {
 }
 
 export async function generateQRCodeSet(
-  lineOfficialAccountUrl: string,
+  lineBotBasicId: string,
   encryptString: string
 ): Promise<QRCodeSet> {
+  // LINE友だち登録用URLを生成（@付きのBASIC IDから）
+  const lineOfficialAccountUrl = `https://line.me/R/ti/p/${lineBotBasicId}`;
+  
   const [lineQRCode, messageQRCode] = await Promise.all([
     generateLineQRCode(lineOfficialAccountUrl),
-    generateMessageQRCode(encryptString)
+    generateMessageQRCode(lineBotBasicId, encryptString)
   ]);
   
   return {
