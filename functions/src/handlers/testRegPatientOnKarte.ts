@@ -148,16 +148,15 @@ export async function testRegPatientOnKarteForm(req: Request, res: Response) {
   </div>
   
   <script>
-    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
+    async function submitRegistration(forceReissue = false) {
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
       submitBtn.textContent = '処理中...';
       
       const formData = {
         userId: document.getElementById('userId').value,
-        patientName: document.getElementById('patientName').value
+        patientName: document.getElementById('patientName').value,
+        forceReissue: forceReissue
       };
       
       try {
@@ -175,8 +174,18 @@ export async function testRegPatientOnKarteForm(req: Request, res: Response) {
           // データをsessionStorageに保存してリダイレクト
           sessionStorage.setItem('registrationResult', JSON.stringify(result));
           window.location.href = '/api/testRegPatientOnKarte/result';
+        } else if (result.alreadyRegistered) {
+          // 既存登録の確認ダイアログ
+          submitBtn.disabled = false;
+          submitBtn.textContent = '登録';
+          
+          const confirmed = confirm(result.message + '\\n\\n「OK」を押すと再発行します。');
+          if (confirmed) {
+            // 再発行実行
+            await submitRegistration(true);
+          }
         } else {
-          alert('エラー: ' + result.error);
+          alert('エラー: ' + (result.error || result.message));
           submitBtn.disabled = false;
           submitBtn.textContent = '登録';
         }
@@ -185,6 +194,11 @@ export async function testRegPatientOnKarteForm(req: Request, res: Response) {
         submitBtn.disabled = false;
         submitBtn.textContent = '登録';
       }
+    }
+    
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await submitRegistration(false);
     });
   </script>
 </body>
@@ -200,7 +214,7 @@ export async function testRegPatientOnKarteForm(req: Request, res: Response) {
  */
 export async function testRegPatientOnKartePost(req: Request, res: Response) {
   try {
-    const { userId, patientName } = req.body;
+    const { userId, patientName, forceReissue } = req.body;
     
     // バリデーション
     if (!userId || !patientName) {
@@ -215,10 +229,14 @@ export async function testRegPatientOnKartePost(req: Request, res: Response) {
     
     // 既存登録チェック
     const existingDoc = await db.collection('TestRegisterdID').doc(userId).get();
-    if (existingDoc.exists) {
-      res.status(400).json({
+    if (existingDoc.exists && !forceReissue) {
+      // 既存登録あり、かつ強制再発行フラグがない場合は確認を求める
+      res.status(200).json({
         success: false,
-        error: 'この患者は既にスマホ登録されています'
+        alreadyRegistered: true,
+        message: 'この患者IDは既に発行済みです。再度発行しますか？',
+        userId,
+        patientName
       });
       return;
     }
