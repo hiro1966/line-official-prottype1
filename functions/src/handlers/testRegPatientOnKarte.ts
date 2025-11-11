@@ -173,8 +173,9 @@ export async function testRegPatientOnKarteForm(req: Request, res: Response) {
         const result = await response.json();
         
         if (result.success) {
-          // QRコード表示ページへリダイレクト
-          window.location.href = '/api/testRegPatientOnKarte/result?data=' + encodeURIComponent(JSON.stringify(result));
+          // データをsessionStorageに保存してリダイレクト
+          sessionStorage.setItem('registrationResult', JSON.stringify(result));
+          window.location.href = '/api/testRegPatientOnKarte/result';
         } else {
           alert('エラー: ' + result.error);
           submitBtn.disabled = false;
@@ -275,15 +276,8 @@ export async function testRegPatientOnKartePost(req: Request, res: Response) {
  * 登録結果（QRコード表示）ページ
  */
 export async function testRegPatientOnKarteResult(req: Request, res: Response) {
-  const dataParam = req.query.data as string;
-  
-  if (!dataParam) {
-    res.status(400).send('Invalid request');
-    return;
-  }
-  
+  // sessionStorageからデータを取得するため、パラメータは不要
   try {
-    const result = JSON.parse(decodeURIComponent(dataParam));
     
     const html = `
 <!DOCTYPE html>
@@ -420,57 +414,86 @@ export async function testRegPatientOnKarteResult(req: Request, res: Response) {
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="success-icon">✅</div>
-    <h1>登録完了</h1>
-    
-    <div class="patient-info">
-      <h3>患者情報</h3>
-      <p><strong>患者ID:</strong> ${result.userId}</p>
-      <p><strong>氏名:</strong> ${result.patientName}</p>
-    </div>
-    
-    <div class="qr-section">
-      <h2>① LINE友だち登録用QRコード</h2>
-      <div class="qr-code">
-        <img src="${result.qrCodes.lineQRCode}" alt="LINE友だち登録QRコード">
-        <p class="qr-description">
-          まず、このQRコードをスマートフォンで読み取って、<br>
-          LINE公式アカウントを友だち追加してください。
-        </p>
-      </div>
-    </div>
-    
-    <div class="qr-section">
-      <h2>② 患者登録用QRコード</h2>
-      <div class="qr-code">
-        <img src="${result.qrCodes.messageQRCode}" alt="患者登録QRコード">
-        <p class="qr-description">
-          友だち追加後、このQRコードを読み取って<br>
-          患者情報とLINEアカウントを紐づけてください。
-        </p>
-      </div>
-    </div>
-    
-    <div class="steps">
-      <h3>📱 登録手順</h3>
-      <ol>
-        <li>スマートフォンで①のQRコードを読み取り、LINE公式アカウントを友だち追加</li>
-        <li>友だち追加後、②のQRコードを読み取る</li>
-        <li>表示されたメッセージを送信</li>
-        <li>登録完了のメッセージが届いたら完了です</li>
-      </ol>
-    </div>
-    
-    <div class="button-group">
-      <a href="/api/testRegPatientOnKarte/form" class="button btn-secondary">
-        新しい患者を登録
-      </a>
-      <a href="/api/testSendMessageOnKarte/form" class="button btn-primary">
-        メッセージ送信テスト
-      </a>
+  <div class="container" id="content">
+    <div style="text-align: center; padding: 40px;">
+      <p>データを読み込んでいます...</p>
     </div>
   </div>
+  
+  <script>
+    // sessionStorageからデータを取得
+    const resultData = sessionStorage.getItem('registrationResult');
+    
+    if (!resultData) {
+      document.getElementById('content').innerHTML = \`
+        <div style="text-align: center; padding: 40px;">
+          <h1 style="color: #d32f2f;">エラー</h1>
+          <p>データが見つかりません。患者登録画面からやり直してください。</p>
+          <div class="button-group" style="margin-top: 30px;">
+            <a href="/api/testRegPatientOnKarte/form" class="button btn-primary">患者登録に戻る</a>
+          </div>
+        </div>
+      \`;
+    } else {
+      const result = JSON.parse(resultData);
+      
+      // データ使用後は削除
+      sessionStorage.removeItem('registrationResult');
+      
+      // コンテンツを表示
+      document.getElementById('content').innerHTML = \`
+        <div class="success-icon">✅</div>
+        <h1>登録完了</h1>
+        
+        <div class="patient-info">
+          <h3>患者情報</h3>
+          <p><strong>患者ID:</strong> \${result.userId}</p>
+          <p><strong>氏名:</strong> \${result.patientName}</p>
+        </div>
+        
+        <div class="qr-section">
+          <h2>① LINE友だち登録用QRコード</h2>
+          <div class="qr-code">
+            <img src="\${result.qrCodes.lineQRCode}" alt="LINE友だち登録QRコード">
+            <p class="qr-description">
+              まず、このQRコードをスマートフォンで読み取って、<br>
+              LINE公式アカウントを友だち追加してください。
+            </p>
+          </div>
+        </div>
+        
+        <div class="qr-section">
+          <h2>② 患者登録用QRコード</h2>
+          <div class="qr-code">
+            <img src="\${result.qrCodes.messageQRCode}" alt="患者登録QRコード">
+            <p class="qr-description">
+              友だち追加後、このQRコードを読み取って<br>
+              患者情報とLINEアカウントを紐づけてください。
+            </p>
+          </div>
+        </div>
+        
+        <div class="steps">
+          <h3>📱 登録手順</h3>
+          <ol>
+            <li>スマートフォンで①のQRコードを読み取り、LINE公式アカウントを友だち追加</li>
+            <li>友だち追加後、②のQRコードを読み取る</li>
+            <li>表示されたメッセージを送信</li>
+            <li>登録完了のメッセージが届いたら完了です</li>
+          </ol>
+        </div>
+        
+        <div class="button-group">
+          <a href="/api/testRegPatientOnKarte/form" class="button btn-secondary">
+            新しい患者を登録
+          </a>
+          <a href="/api/testSendMessageOnKarte/form" class="button btn-primary">
+            メッセージ送信テスト
+          </a>
+        </div>
+      \`;
+    }
+  </script>
 </body>
 </html>
     `;
