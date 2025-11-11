@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "LinkdPatient",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "LineID",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "RegisteredAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "LinkdPatient",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "EncryptString",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "RegisteredAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

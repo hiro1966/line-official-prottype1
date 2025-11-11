@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Patientsコレクション - サーバー（Admin SDK）のみアクセス可能
+    match /Patients/{patientId} {
+      allow read, write: if false;
+    }
+    
+    // LinkdPatientコレクション - サーバー（Admin SDK）のみアクセス可能
+    match /LinkdPatient/{docId} {
+      allow read, write: if false;
+    }
+    
+    // TestRegisterdIDコレクション - サーバー（Admin SDK）のみアクセス可能
+    match /TestRegisterdID/{userId} {
+      allow read, write: if false;
+    }
+    
+    // その他のコレクションはデフォルトで拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

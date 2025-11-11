@@ -1,0 +1,5 @@
+{
+  "qrCodeExpiry": 24,
+  "messageTemplate": "{patientName}さん、{roomNumber}へお越しください",
+  "lineOfficialAccountUrl": "https://line.me/R/ti/p/@YOUR_LINE_ID"
+}
