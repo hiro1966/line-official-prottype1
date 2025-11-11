@@ -1,4 +1,4 @@
-# デプロイ手順書
+# デプロイ手順書（Windows環境向け）
 
 ## 📋 デプロイ前チェックリスト
 
@@ -12,12 +12,15 @@
 
 ### 1. Firebase プロジェクトの設定
 
-```bash
+**PowerShellまたはコマンドプロンプトを管理者権限で起動してください。**
+
+```powershell
 # Firebase にログイン
 firebase login
 
 # プロジェクトを選択
 firebase use --add
+
 # または既存プロジェクトを指定
 firebase use <project-id>
 
@@ -27,14 +30,29 @@ firebase projects:list
 
 ### 2. 環境変数の設定
 
-```bash
-# LINE Messaging API の設定
-firebase functions:config:set \
-  line.channel_id="YOUR_CHANNEL_ID" \
-  line.channel_secret="YOUR_CHANNEL_SECRET" \
-  line.channel_access_token="YOUR_ACCESS_TOKEN"
+**重要**: Windowsでは複数行コマンドの構文が異なります。
+
+#### PowerShellの場合：
+
+```powershell
+# LINE Messaging API の設定（1つずつ実行）
+firebase functions:config:set line.channel_id="YOUR_CHANNEL_ID"
+firebase functions:config:set line.channel_secret="YOUR_CHANNEL_SECRET"
+firebase functions:config:set line.channel_access_token="YOUR_ACCESS_TOKEN"
 
 # 設定確認
+firebase functions:config:get
+```
+
+#### コマンドプロンプトの場合：
+
+```cmd
+rem LINE Messaging API の設定（1つずつ実行）
+firebase functions:config:set line.channel_id="YOUR_CHANNEL_ID"
+firebase functions:config:set line.channel_secret="YOUR_CHANNEL_SECRET"
+firebase functions:config:set line.channel_access_token="YOUR_ACCESS_TOKEN"
+
+rem 設定確認
 firebase functions:config:get
 ```
 
@@ -67,11 +85,11 @@ firebase functions:config:get
 
 ### 4. 依存パッケージのインストール
 
-```bash
+```powershell
 # プロジェクトルートで実行
 npm install
 
-# Cloud Functions ディレクトリで実行
+# Cloud Functions ディレクトリに移動してインストール
 cd functions
 npm install
 cd ..
@@ -79,29 +97,34 @@ cd ..
 
 ### 5. ビルドの確認
 
-```bash
+```powershell
 cd functions
 npm run build
 ```
 
 エラーがないことを確認してください。
 
+```powershell
+# ルートディレクトリに戻る
+cd ..
+```
+
 ### 6. Firestore セキュリティルールのデプロイ
 
-```bash
+```powershell
 # ルートディレクトリで実行
 firebase deploy --only firestore:rules
 ```
 
 ### 7. Firestore インデックスのデプロイ
 
-```bash
+```powershell
 firebase deploy --only firestore:indexes
 ```
 
 ### 8. Cloud Functions のデプロイ
 
-```bash
+```powershell
 firebase deploy --only functions
 ```
 
@@ -140,25 +163,26 @@ https://asia-northeast1-<project-id>.cloudfunctions.net/api
 
 ### 1. ビルドの確認
 
-```bash
+```powershell
 cd functions
 npm run build
+cd ..
 ```
 
 ### 2. 変更内容に応じてデプロイ
 
 **関数のみ変更した場合：**
-```bash
+```powershell
 firebase deploy --only functions
 ```
 
 **Firestoreルールも変更した場合：**
-```bash
+```powershell
 firebase deploy --only firestore:rules,functions
 ```
 
 **すべて更新する場合：**
-```bash
+```powershell
 firebase deploy
 ```
 
@@ -170,7 +194,7 @@ firebase deploy
 
 ### Cloud Functions のログ確認
 
-```bash
+```powershell
 # リアルタイムログ
 firebase functions:log --only api
 
@@ -187,7 +211,7 @@ https://console.firebase.google.com/project/<project-id>/firestore
 
 ### 環境変数の確認
 
-```bash
+```powershell
 firebase functions:config:get
 ```
 
@@ -207,7 +231,7 @@ Firebase プロジェクトで課金を有効化する必要があります：
 
 適切な権限がない可能性があります：
 
-```bash
+```powershell
 # 再度ログイン
 firebase logout
 firebase login
@@ -218,7 +242,7 @@ firebase use <project-id>
 
 ### 関数が見つからない
 
-```bash
+```powershell
 # 既存の関数を確認
 firebase functions:list
 
@@ -231,13 +255,25 @@ firebase deploy --only functions
 
 1. Webhook URLが正しいか確認
 2. 環境変数が正しく設定されているか確認：
-   ```bash
+   ```powershell
    firebase functions:config:get
    ```
 3. Cloud Functionsのログを確認：
-   ```bash
+   ```powershell
    firebase functions:log --only api
    ```
+
+### PowerShell実行ポリシーエラー
+
+PowerShellでスクリプト実行が制限されている場合：
+
+```powershell
+# 現在の実行ポリシーを確認
+Get-ExecutionPolicy
+
+# 実行ポリシーを変更（管理者権限が必要）
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
 
 ## 🔐 セキュリティ設定
 
@@ -245,16 +281,23 @@ firebase deploy --only functions
 
 **重要:** サービスアカウントキーは絶対にGitにコミットしないでください。
 
-```bash
+#### PowerShellの場合：
+```powershell
 # .gitignore に追加されているか確認
-cat .gitignore | grep serviceAccount
+Get-Content .gitignore | Select-String "serviceAccount"
+```
+
+#### コマンドプロンプトの場合：
+```cmd
+rem .gitignore の内容を確認
+type .gitignore | findstr "serviceAccount"
 ```
 
 ### 環境変数の管理
 
 環境変数は Firebase Functions Config を使用：
 
-```bash
+```powershell
 # 設定
 firebase functions:config:set key.name="value"
 
@@ -279,7 +322,7 @@ firebase functions:config:unset key.name
    - 本番用のLINE公式アカウントURLを設定
 
 4. **Firestoreのバックアップ設定**
-   ```bash
+   ```powershell
    gcloud firestore export gs://<bucket-name>
    ```
 
@@ -310,14 +353,37 @@ firebase functions:config:unset key.name
 
 問題が発生した場合のロールバック：
 
-```bash
+```powershell
 # 特定のバージョンをデプロイ
 git checkout <previous-commit>
 firebase deploy --only functions
-
-# または
-# Firebase Console から以前のバージョンを選択してロールバック
 ```
+
+または、Firebase Console から以前のバージョンを選択してロールバック
+
+## 💡 Windows環境での注意事項
+
+### パスの区切り文字
+
+Windowsではパスの区切り文字が `\` ですが、Node.jsやFirebase CLIでは `/` を使用してください。
+
+### 文字コード
+
+ファイルの文字コードは **UTF-8（BOM無し）** を推奨します。
+
+- Visual Studio Code: 右下の文字コード表示をクリックして「UTF-8」を選択
+- メモ帳: 「名前を付けて保存」で「UTF-8」を選択
+
+### 改行コード
+
+- Git設定で改行コードを自動変換しない設定を推奨：
+  ```powershell
+  git config --global core.autocrlf false
+  ```
+
+### ファイアウォール設定
+
+Firebase CLIの通信が必要な場合、Windowsファイアウォールで許可してください。
 
 ## 📞 サポート
 
