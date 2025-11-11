@@ -12,11 +12,12 @@ const IV_LENGTH = 16; // 128 bits
 
 /**
  * 暗号化キーを生成
- * 現在時刻（ISO形式）とランダムソルトからキーを生成
+ * タイムスタンプから決定的にキーを生成（saltは固定）
  */
 export function generateEncryptionKey(timestamp: string): Buffer {
-  const salt = crypto.randomBytes(16);
-  const keyMaterial = `${timestamp}-${salt.toString('hex')}`;
+  // タイムスタンプをsaltとして使用（決定的に生成）
+  const salt = crypto.createHash('sha256').update(timestamp).digest().slice(0, 16);
+  const keyMaterial = `medical-line-system-${timestamp}`;
   return crypto.pbkdf2Sync(keyMaterial, salt, 100000, KEY_LENGTH, 'sha256');
 }
 
