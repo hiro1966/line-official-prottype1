@@ -96,6 +96,9 @@ async function handleMessageEvent(event: MessageEvent, client: Client): Promise<
   
   if (!userId) return;
   
+  // デバッグログ
+  console.log('Received message:', { userId, text, length: text.length });
+  
   // コマンド判定
   if (text === 'リスト' || text.toLowerCase() === 'list') {
     await handleListCommand(userId, event.replyToken, client);
@@ -105,12 +108,14 @@ async function handleMessageEvent(event: MessageEvent, client: Client): Promise<
   } else if (text === 'はい' || text.toLowerCase() === 'yes') {
     // 解除確認
     await handleUnlinkConfirmCommand(userId, event.replyToken, client);
-  } else if (text.includes('登録コード:')) {
-    // QRコードからの登録
+  } else if (text.includes('登録コード:') || text.includes('登録コード：')) {
+    // QRコードからの登録（半角コロン・全角コロン両対応）
     await handleRegistrationMessage(userId, text, event.replyToken, client);
   } else {
     // 未知のメッセージ（解除処理をキャンセル）
     unlinkConfirmations.delete(userId);
+    
+    console.log('Unknown message, sending help. Message was:', text);
     
     const helpMessage = {
       type: 'text' as const,
@@ -130,9 +135,10 @@ async function handleRegistrationMessage(
   client: Client
 ): Promise<void> {
   try {
-    // 登録コードを抽出
-    const match = text.match(/登録コード:\s*(.+)/);
+    // 登録コードを抽出（半角コロン・全角コロン両対応、スペースも柔軟に対応）
+    const match = text.match(/登録コード[:\：]\s*(.+)/);
     if (!match) {
+      console.log('Registration code format error. Text was:', text);
       await client.replyMessage(replyToken, {
         type: 'text',
         text: '登録コードの形式が正しくありません。'
@@ -141,6 +147,7 @@ async function handleRegistrationMessage(
     }
     
     const encryptString = match[1].trim();
+    console.log('Extracted encrypt string length:', encryptString.length);
     const config = loadConfig();
     
     // 暗号化データを復号化
