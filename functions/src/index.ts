@@ -4,7 +4,7 @@
 
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import * as express from 'express';
+import express, { Request, Response } from 'express';
 
 // Firebase Admin初期化
 admin.initializeApp();
@@ -46,7 +46,7 @@ app.get('/testSendMessageOnKarte/form', testSendMessageOnKarteForm);
 app.post('/testSendMessageOnKarte', testSendMessageOnKartePost);
 
 // ルートパス - テストメニュー
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   const html = `
 <!DOCTYPE html>
 <html lang="ja">
