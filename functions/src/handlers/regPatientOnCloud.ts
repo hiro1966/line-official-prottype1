@@ -40,9 +40,10 @@ export async function regPatientOnCloud(req: Request, res: Response) {
     
   } catch (error) {
     console.error('Error in regPatientOnCloud:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: 'Internal server error: ' + errorMessage
     });
   }
 }

@@ -41,7 +41,8 @@ export async function lineHook(req: Request, res: Response) {
     res.status(200).send('OK');
   } catch (error) {
     console.error('Error in lineHook:', error);
-    res.status(500).send('Internal Server Error');
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).send('Internal Server Error: ' + errorMessage);
   }
 }
 

@@ -412,9 +412,11 @@ export async function testSendMessageOnKartePost(req: Request, res: Response) {
     
   } catch (error) {
     console.error('Error in testSendMessageOnKartePost:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({
       success: false,
-      error: 'Internal server error: ' + (error as Error).message
+      error: 'Internal server error: ' + errorMessage,
+      details: error instanceof Error ? error.stack : String(error)
     });
   }
 }

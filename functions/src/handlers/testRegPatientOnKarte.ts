@@ -262,9 +262,11 @@ export async function testRegPatientOnKartePost(req: Request, res: Response) {
     
   } catch (error) {
     console.error('Error in testRegPatientOnKartePost:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: 'Internal server error: ' + errorMessage,
+      details: error instanceof Error ? error.stack : String(error)
     });
   }
 }
