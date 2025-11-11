@@ -77,24 +77,31 @@ firebase use --add
 
 ### 6. 環境変数の設定
 
+`functions` フォルダ内に `.env` ファイルを作成：
+
+#### Windowsの場合：
+```powershell
+cd functions
+copy .env.example .env
+notepad .env
+```
+
+#### macOS/Linuxの場合：
 ```bash
-# .env.example をコピー
+cd functions
 cp .env.example .env
-
-# .env を編集して環境変数を設定
-# LINE_CHANNEL_ID=your_channel_id
-# LINE_CHANNEL_SECRET=your_channel_secret
-# LINE_CHANNEL_ACCESS_TOKEN=your_access_token
+nano .env
 ```
 
-Cloud Functionsに環境変数を設定：
+`.env` ファイルを編集して、LINE認証情報を設定：
 
-```bash
-firebase functions:config:set \
-  line.channel_id="YOUR_CHANNEL_ID" \
-  line.channel_secret="YOUR_CHANNEL_SECRET" \
-  line.channel_access_token="YOUR_ACCESS_TOKEN"
+```env
+LINE_CHANNEL_ID=your_channel_id
+LINE_CHANNEL_SECRET=your_channel_secret
+LINE_CHANNEL_ACCESS_TOKEN=your_access_token
 ```
+
+**重要**: `.env` ファイルは `.gitignore` に含まれており、Gitにコミットされません。
 
 ### 7. config.json の編集
 

@@ -1,5 +1,8 @@
 # デプロイ手順書（Windows環境向け）
 
+> **📝 注意**: このドキュメントはWindows環境を前提としています。
+> macOS/Linuxの場合は、PowerShellコマンドをbashコマンドに読み替えてください。
+
 ## 📋 デプロイ前チェックリスト
 
 - [ ] Node.js 20.x がインストールされている
@@ -30,42 +33,42 @@ firebase projects:list
 
 ### 2. 環境変数の設定
 
-**重要**: Windowsでは複数行コマンドの構文が異なります。
+**新方式**: Firebase Functions は `.env` ファイルを使用します（推奨）
 
-#### PowerShellの場合：
+#### 手順：
+
+1. `functions` フォルダ内に `.env` ファイルを作成：
 
 ```powershell
-# LINE Messaging API の設定（1つずつ実行）
-firebase functions:config:set line.channel_id="YOUR_CHANNEL_ID"
-firebase functions:config:set line.channel_secret="YOUR_CHANNEL_SECRET"
-firebase functions:config:set line.channel_access_token="YOUR_ACCESS_TOKEN"
+# functions ディレクトリに移動
+cd functions
 
-# 設定確認
-firebase functions:config:get
+# .env.example をコピーして .env を作成
+copy .env.example .env
+
+# .env ファイルをテキストエディタで開く
+notepad .env
 ```
 
-#### コマンドプロンプトの場合：
+2. `.env` ファイルを以下のように編集：
 
-```cmd
-rem LINE Messaging API の設定（1つずつ実行）
-firebase functions:config:set line.channel_id="YOUR_CHANNEL_ID"
-firebase functions:config:set line.channel_secret="YOUR_CHANNEL_SECRET"
-firebase functions:config:set line.channel_access_token="YOUR_ACCESS_TOKEN"
-
-rem 設定確認
-firebase functions:config:get
+```env
+LINE_CHANNEL_ID=1234567890
+LINE_CHANNEL_SECRET=あなたのチャンネルシークレット
+LINE_CHANNEL_ACCESS_TOKEN=あなたのアクセストークン
 ```
 
-出力例：
-```json
-{
-  "line": {
-    "channel_id": "1234567890",
-    "channel_secret": "abcdef...",
-    "channel_access_token": "xyz..."
-  }
-}
+**重要**: 
+- `.env` ファイルは `.gitignore` に含まれており、Gitにコミットされません
+- 本番環境の認証情報は絶対にGitHubにアップロードしないでください
+
+3. ルートディレクトリに戻る：
+
+```powershell
+cd ..
 ```
+
+
 
 ### 3. config.json の編集
 
@@ -256,7 +259,10 @@ firebase deploy --only functions
 1. Webhook URLが正しいか確認
 2. 環境変数が正しく設定されているか確認：
    ```powershell
-   firebase functions:config:get
+   # functions/.env ファイルを確認
+   cd functions
+   type .env
+   cd ..
    ```
 3. Cloud Functionsのログを確認：
    ```powershell
@@ -295,18 +301,21 @@ type .gitignore | findstr "serviceAccount"
 
 ### 環境変数の管理
 
-環境変数は Firebase Functions Config を使用：
+**新方式**: `.env` ファイルで環境変数を管理します。
 
 ```powershell
-# 設定
-firebase functions:config:set key.name="value"
+# .env ファイルの確認
+cd functions
+type .env
 
-# 確認
-firebase functions:config:get
-
-# 削除
-firebase functions:config:unset key.name
+# .env ファイルの編集
+notepad .env
 ```
+
+**重要事項**:
+- `.env` ファイルは `.gitignore` に含まれており、Gitリポジトリに含まれません
+- 本番環境の認証情報は絶対に公開しないでください
+- チームメンバーには `.env.example` を共有し、各自で `.env` を作成してもらってください
 
 ## 📈 本番環境への移行
 
