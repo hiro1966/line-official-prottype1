@@ -38,9 +38,13 @@ export async function generateLineQRCode(lineOfficialAccountUrl: string): Promis
  */
 export async function generateMessageQRCode(lineBotBasicId: string, encryptString: string): Promise<string> {
   // LINEでメッセージを送信するためのURL形式
-  // https://line.me/R/oaMessage/<BOT_BASIC_ID>/?<メッセージ内容>
+  // https://line.me/R/oaMessage/@bot_id/?<メッセージ本文>
+  // 注意: @を含むlineBotBasicIdを使用
   const message = `登録コード: ${encryptString}`;
-  const lineMessageUrl = `https://line.me/R/oaMessage/${lineBotBasicId}/?${encodeURIComponent(message)}`;
+  
+  // URLエンコードして、正しいフォーマットで構築
+  const encodedMessage = encodeURIComponent(message);
+  const lineMessageUrl = `https://line.me/R/oaMessage/${lineBotBasicId}/?${encodedMessage}`;
   
   return generateQRCode(lineMessageUrl);
 }

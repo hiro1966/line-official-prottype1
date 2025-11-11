@@ -97,7 +97,7 @@ async function handleMessageEvent(event: MessageEvent, client: Client): Promise<
   if (!userId) return;
   
   // デバッグログ
-  console.log('Received message:', { userId, text, length: text.length });
+  console.log('Received message:', { userId, text, length: text.length, firstChars: text.substring(0, 20) });
   
   // コマンド判定
   if (text === 'リスト' || text.toLowerCase() === 'list') {
@@ -108,14 +108,17 @@ async function handleMessageEvent(event: MessageEvent, client: Client): Promise<
   } else if (text === 'はい' || text.toLowerCase() === 'yes') {
     // 解除確認
     await handleUnlinkConfirmCommand(userId, event.replyToken, client);
-  } else if (text.includes('登録コード:') || text.includes('登録コード：')) {
-    // QRコードからの登録（半角コロン・全角コロン両対応）
+  } else if (text.startsWith('登録コード:') || text.startsWith('登録コード：') || 
+             text.includes('登録コード:') || text.includes('登録コード：')) {
+    // QRコードからの登録（半角コロン・全角コロン両対応、前方一致も確認）
+    console.log('Registration code detected, processing...');
     await handleRegistrationMessage(userId, text, event.replyToken, client);
   } else {
     // 未知のメッセージ（解除処理をキャンセル）
     unlinkConfirmations.delete(userId);
     
     console.log('Unknown message, sending help. Message was:', text);
+    console.log('Message hex:', Buffer.from(text).toString('hex').substring(0, 100));
     
     const helpMessage = {
       type: 'text' as const,
