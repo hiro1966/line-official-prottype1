@@ -229,7 +229,7 @@ export async function testSendMessageOnKarteForm(req: Request, res: Response) {
     </div>
     
     <div class="link-group">
-      <a href="../testRegPatientOnKarte/form" class="link-button">患者登録に戻る</a>
+      <a href="/api/testRegPatientOnKarte/form" class="link-button">患者登録に戻る</a>
     </div>
   </div>
   
@@ -270,7 +270,7 @@ export async function testSendMessageOnKarteForm(req: Request, res: Response) {
       }
       
       try {
-        const response = await fetch('./testSendMessageOnKarte', {
+        const response = await fetch('/api/testSendMessageOnKarte', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

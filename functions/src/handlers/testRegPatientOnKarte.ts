@@ -162,7 +162,7 @@ export async function testRegPatientOnKarteForm(req: Request, res: Response) {
       };
       
       try {
-        const response = await fetch('./testRegPatientOnKarte', {
+        const response = await fetch('/api/testRegPatientOnKarte', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -174,7 +174,7 @@ export async function testRegPatientOnKarteForm(req: Request, res: Response) {
         
         if (result.success) {
           // QRコード表示ページへリダイレクト
-          window.location.href = './testRegPatientOnKarte/result?data=' + encodeURIComponent(JSON.stringify(result));
+          window.location.href = '/api/testRegPatientOnKarte/result?data=' + encodeURIComponent(JSON.stringify(result));
         } else {
           alert('エラー: ' + result.error);
           submitBtn.disabled = false;
@@ -463,10 +463,10 @@ export async function testRegPatientOnKarteResult(req: Request, res: Response) {
     </div>
     
     <div class="button-group">
-      <a href="../testRegPatientOnKarte/form" class="button btn-secondary">
+      <a href="/api/testRegPatientOnKarte/form" class="button btn-secondary">
         新しい患者を登録
       </a>
-      <a href="../testSendMessageOnKarte/form" class="button btn-primary">
+      <a href="/api/testSendMessageOnKarte/form" class="button btn-primary">
         メッセージ送信テスト
       </a>
     </div>

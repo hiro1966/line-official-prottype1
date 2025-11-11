@@ -152,12 +152,12 @@ app.get('/', (req: Request, res: Response) => {
     <p class="subtitle">プロトタイプ版テストメニュー</p>
     
     <div class="menu-grid">
-      <a href="./testRegPatientOnKarte/form" class="menu-card">
+      <a href="/api/testRegPatientOnKarte/form" class="menu-card">
         <h2>📝 患者登録</h2>
         <p>新しい患者をシステムに登録し、QRコードを生成します。</p>
       </a>
       
-      <a href="./testSendMessageOnKarte/form" class="menu-card secondary">
+      <a href="/api/testSendMessageOnKarte/form" class="menu-card secondary">
         <h2>📤 メッセージ送信</h2>
         <p>登録済み患者にLINEメッセージを送信します。</p>
       </a>
